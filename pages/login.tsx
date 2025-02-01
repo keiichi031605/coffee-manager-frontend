@@ -4,12 +4,14 @@ import { Box, TextField, Button, Container, Typography } from "@mui/material";
 import api from "../utils/api";
 import Header from "../components/Header";
 import { useRouter } from "next/navigation";
+import { getAPIError } from "../utils/errorHandler";
+import { APIError } from "../types/errors";
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,11 +24,12 @@ export default function Login() {
 
       console.log("User logged in:", response.data);
       alert("Login successful!");
-      localStorage.setItem("token", response.headers.authorization); // Save JWT if used
+      localStorage.setItem("token", response.headers.authorization || ""); // Save JWT if used
       router.push("/dashboard"); // Redirect after successful login
-    } catch (err: any) {
-      console.error("Login failed:", err.response?.data || err.message);
-      setError("Invalid email or password.");
+    } catch (err) {
+      const apiError: APIError = getAPIError(err);
+      console.error("Login failed:", apiError);
+      setError(apiError.message);
     }
   };
 
