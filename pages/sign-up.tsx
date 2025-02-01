@@ -11,13 +11,33 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     if (password !== passwordConfirmation) {
       alert("Passwords do not match.");
       return;
     }
-    await api.post("/signup", { user: { email, password, password_confirmation: passwordConfirmation } });
-  };
 
+    console.log("email", email)
+    console.log("password", password)
+    console.log("passwordConfirmation", passwordConfirmation)
+  
+    try {
+      const response = await api.post("/signup", {
+        user: {
+          email,
+          password,
+          password_confirmation: passwordConfirmation,
+        },
+      });
+  
+      console.log("User signed up:", response.data);
+      alert("Sign-up successful!");
+    } catch (error: any) {
+      console.error("Sign-up failed:", error.response?.data || error.message);
+      alert("Sign-up failed. Please try again.");
+    }
+  };
+  
   return (
     <>
       <Header />

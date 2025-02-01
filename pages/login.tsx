@@ -1,9 +1,9 @@
-  "use client";
+"use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Box, TextField, Button, Container, Typography } from "@mui/material";
 import api from "../utils/api";
 import Header from "../components/Header";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const router = useRouter();
@@ -14,13 +14,18 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     try {
-      const response = await api.post("/login", { user: { email, password } });
-      if (response?.data?.status?.code === 200) {
-        localStorage.setItem("token", response.headers["authorization"]);
-        router.push("/coffees");
-      }
-    } catch {
+      const response = await api.post("/users/sign_in", {
+        user: { email, password },
+      });
+
+      console.log("User logged in:", response.data);
+      alert("Login successful!");
+      localStorage.setItem("token", response.headers.authorization); // Save JWT if used
+      router.push("/dashboard"); // Redirect after successful login
+    } catch (err: any) {
+      console.error("Login failed:", err.response?.data || err.message);
       setError("Invalid email or password.");
     }
   };
@@ -28,17 +33,51 @@ export default function Login() {
   return (
     <>
       <Header />
-      <Container component="main" maxWidth="xs">
+      <Container maxWidth="xs">
         <Box className="min-h-screen flex flex-col items-center justify-center">
-          <Typography className="text-white font-bold" variant="h4" align="center" mb={5}>
-            Welcome back!<br />We exist to make entrepreneurship easier.
+          <Typography
+            className="text-white font-bold"
+            variant="h4"
+            align="center"
+            mb={5}
+          >
+            Welcome Back!
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} className="w-full p-6 bg-white rounded-lg shadow-md">
-            <TextField fullWidth label="Email Address" margin="normal" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <TextField fullWidth label="Password" type="password" margin="normal" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            {error && <Typography color="error" align="center">{error}</Typography>}
-            <Button type="submit" fullWidth variant="contained" color="primary" className="mt-3 mb-2">
-              Sign In
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            className="w-full p-6 bg-white rounded-lg shadow-md"
+          >
+            <TextField
+              fullWidth
+              label="Email"
+              margin="normal"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <TextField
+              fullWidth
+              label="Password"
+              type="password"
+              margin="normal"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            {error && (
+              <Typography color="error" align="center">
+                {error}
+              </Typography>
+            )}
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className="mt-3 mb-2"
+            >
+              Login
             </Button>
           </Box>
         </Box>
